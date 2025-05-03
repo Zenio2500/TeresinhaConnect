@@ -76,7 +76,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_03_122310) do
   create_table "users", force: :cascade do |t|
     t.string "name", null: false
     t.string "email", null: false
-    t.string "password", null: false
+    t.string "password_digest", null: false
     t.boolean "is_coordinator", default: false
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
