@@ -48,6 +48,9 @@ gem 'bcrypt', '~> 3.1.7'
 # Use acts_as_paranoid for soft delete
 gem 'acts_as_paranoid', '~> 0.10.3'
 
+# Use Devise for authentication
+gem 'devise', '~> 4.9'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
