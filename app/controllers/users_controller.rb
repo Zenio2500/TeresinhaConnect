@@ -1,60 +1,53 @@
 class UsersController < ApplicationController
-    respond_to :json
+  skip_before_action :authenticate_user!, only: [:create]
+  before_action :set_user, only: %i[show update destroy]
+  before_action :set_users, only: %i[index]
 
-    before_action :authenticate_user!
-    before_action :set_user, only: %i[ show update destroy ]
-    before_action :set_users, only: %i[ index ]
+  def index
+    render json: @users
+  end
 
-    def index
-        respond_with(@users)
+  def show
+    render json: @user
+  end
+
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      render json: @user, status: :created
+    else
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
+  end
 
-    def show
-        respond_with(@user)
+  def update
+    if @user.update(user_params)
+      render json: @user, status: :ok
+    else
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
+  end
 
-    def create
-        @user = User.new(user_params)
-        if @user.save
-            format.json { render json: @user, status: :created }
-        else
-            format.json do
-                render json: { errors: @user.errors.full_messages } , status: 403
-            end
-        end
+  def destroy
+    if @user.destroy
+      head :no_content
+    else
+      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
+  end
 
-    def update
-        if @user.update(user_params)
-            format.json { render json: @user, status: :ok }
-        else
-            format.json do
-                render json: { errors: @user.errors.full_messages } , status: 403
-            end
-        end
-    end
+  private
 
-    def destroy
-        if @user.destroy
-            format.json { render json: @user, status: :ok }
-        else
-            format.json do
-                render json: { errors: @user.errors.full_messages } , status: 403
-            end
-        end
-    end
+  def set_user
+    @user = User.find_by(id: params[:id])
+    render json: { error: 'User not found' }, status: :not_found unless @user
+  end
 
-    private
+  def set_users
+    @users = User.all
+  end
 
-    def set_user
-        @user = User.find_by(id: params[:id])
-    end
-
-    def set_users
-        @users = User.all
-    end
-
-    def user_params
-        params.require(:user).permit(:name, :email, :password, :password_confirmation)
-    end
+  def user_params
+    params.require(:user).permit(:name, :email, :password, :password_confirmation, :is_coordinator)
+  end
 end
