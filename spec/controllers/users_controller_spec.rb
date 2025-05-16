@@ -27,7 +27,6 @@ RSpec.describe UsersController, type: :controller do
   let(:coordinator_user) { create(:user, :coordinator, password: 'password123') }
 
   before do
-    # Configura a autenticação básica para os testes
     request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(
       user.email, 'password123'
     )

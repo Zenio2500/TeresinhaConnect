@@ -12,4 +12,13 @@ class Pastoral < ApplicationRecord
         uniqueness: { message: "já está cadastrada." }
     validates :coordinator_id, presence: { message: "não pode ficar em branco." }
     validates :vice_coordinator_id, presence: { message: "não pode ficar em branco." }
+
+    before_validation :check_coordinators
+
+    def check_coordinators
+        if coordinator_id == vice_coordinator_id
+            errors.add(:base, "Coordenador não pode ser o mesmo que o vice-coordenador.")
+            throw :abort
+        end
+    end
 end

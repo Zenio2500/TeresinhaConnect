@@ -14,40 +14,37 @@ class ReadersController < ApplicationController
     end
 
     def create
-        @reader = Reader.new(reader_params)
-        if @reader.save
-            format.json { render json: @reader, status: :created }
-        else
-            format.json do
-                render json: { errors: @reader.errors.full_messages } , status: 403
-            end
-        end
+      @reader = Reader.new(reader_params)
+      if @reader.save
+        render json: @reader, status: :created
+      else
+        render json: { errors: @reader.errors.full_messages }, status: :unprocessable_entity
+      end
     end
-
+    
     def update
-        if @reader.update(reader_params)
-            format.json { render json: @reader, status: :ok }
-        else
-            format.json do
-                render json: { errors: @reader.errors.full_messages } , status: 403
-            end
-        end
+      if @reader.update(reader_params)
+        render json: @reader, status: :ok
+      else
+        render json: { errors: @reader.errors.full_messages }, status: :unprocessable_entity
+      end
     end
-
+    
     def destroy
-        if @reader.destroy
-            format.json { render json: @reader, status: :ok }
-        else
-            format.json do
-                render json: { errors: @reader.errors.full_messages } , status: 403
-            end
-        end
+      if @reader.destroy
+        head :no_content
+      else
+        render json: { errors: @reader.errors.full_messages }, status: :unprocessable_entity
+      end
     end
 
     private
 
     def set_reader
-        @reader = Reader.find_by(id: params[:id])
+      @reader = Reader.find_by(id: params[:id])
+      if @reader.nil?
+        render json: { errors: "Leitor não encontrado." }, status: :not_found
+      end
     end
 
     def set_readers
