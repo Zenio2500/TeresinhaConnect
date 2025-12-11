@@ -1,0 +1,65 @@
+<%= form_with(model: reader, local: true) do |f| %>
+  <%# Exibir erros de validação %>
+  <% if reader.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(reader.errors.count, "erro") %> <%= reader.errors.count == 1 ? "impediu" : "impediram" %> que este leitor fosse salvo:</h4>
+      <ul style="margin-top: var(--spacing-sm); margin-left: var(--spacing-lg);">
+        <% reader.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :user_id, "Usuário", class: "form-label required" %>
+    <%= f.collection_select :user_id, 
+        User.order(:name), 
+        :id, :name, 
+        { prompt: "Selecione um usuário" }, 
+        { class: "form-control #{reader.errors[:user_id].any? ? 'is-invalid' : ''}", required: true } %>
+    <span class="form-text">Selecione o usuário que será designado como leitor</span>
+    <% if reader.errors[:user_id].any? %>
+      <div class="invalid-feedback">
+        <%= reader.errors[:user_id].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :disponibility, "Disponibilidade", class: "form-label" %>
+    <div style="margin-top: var(--spacing-sm);">
+      <% ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo'].each do |day| %>
+        <div class="form-check">
+          <%= check_box_tag 'reader[disponibility][]', day, 
+              reader.disponibility&.include?(day), 
+              class: 'form-check-input', 
+              id: "reader_disponibility_#{day.parameterize}" %>
+          <%= label_tag "reader_disponibility_#{day.parameterize}", day, class: 'form-check-label' %>
+        </div>
+      <% end %>
+    </div>
+    <span class="form-text">Selecione os dias em que o leitor está disponível</span>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :read_types, "Tipos de Leitura", class: "form-label" %>
+    <div style="margin-top: var(--spacing-sm);">
+      <% ['1ª Leitura', '2ª Leitura', 'Salmo', 'Evangelho', 'Preces'].each do |type| %>
+        <div class="form-check">
+          <%= check_box_tag 'reader[read_types][]', type, 
+              reader.read_types&.include?(type), 
+              class: 'form-check-input', 
+              id: "reader_read_types_#{type.parameterize}" %>
+          <%= label_tag "reader_read_types_#{type.parameterize}", type, class: 'form-check-label' %>
+        </div>
+      <% end %>
+    </div>
+    <span class="form-text">Selecione os tipos de leitura que o leitor pode realizar</span>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit reader.persisted? ? "Atualizar Leitor" : "Criar Leitor", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", reader.persisted? ? reader_path(reader) : readers_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

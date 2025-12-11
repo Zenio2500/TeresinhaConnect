@@ -1,0 +1,86 @@
+<div class="mb-4">
+  <h1><%= @pastoral.name %></h1>
+  <p style="color: var(--gray-600);">Detalhes da pastoral</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Informações da Pastoral</h3>
+    <div class="btn-group">
+      <%= link_to "Editar", edit_pastoral_path(@pastoral), class: "btn btn-sm btn-warning" %>
+      <%= link_to "Voltar", pastorals_path, class: "btn btn-sm btn-secondary" %>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <ul class="detail-list">
+      <li class="detail-list-item">
+        <span class="detail-list-label">Nome:</span>
+        <span class="detail-list-value"><strong><%= @pastoral.name %></strong></span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Coordenador:</span>
+        <span class="detail-list-value">
+          <% if @pastoral.coordinator %>
+            <%= link_to @pastoral.coordinator.name, user_path(@pastoral.coordinator), class: "btn btn-sm btn-secondary" %>
+          <% else %>
+            N/A
+          <% end %>
+        </span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Vice-Coordenador:</span>
+        <span class="detail-list-value">
+          <% if @pastoral.vice_coordinator %>
+            <%= link_to @pastoral.vice_coordinator.name, user_path(@pastoral.vice_coordinator), class: "btn btn-sm btn-secondary" %>
+          <% else %>
+            N/A
+          <% end %>
+        </span>
+      </li>
+      
+      <% if @pastoral.description.present? %>
+        <li class="detail-list-item">
+          <span class="detail-list-label">Descrição:</span>
+          <span class="detail-list-value"><%= @pastoral.description %></span>
+        </li>
+      <% end %>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Total de Membros:</span>
+        <span class="detail-list-value">
+          <span class="badge badge-primary"><%= @pastoral.users.count %></span>
+        </span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Cadastrada em:</span>
+        <span class="detail-list-value"><%= @pastoral.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<% if @pastoral.users.any? %>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Membros da Pastoral</h3>
+    </div>
+    
+    <div class="card-body">
+      <div class="grid grid-3">
+        <% @pastoral.users.each do |user| %>
+          <div class="card">
+            <div class="card-body">
+              <h5><%= user.name %></h5>
+              <p style="color: var(--gray-600); font-size: 0.9rem;"><%= user.email %></p>
+              <%= link_to "Ver Perfil", user_path(user), class: "btn btn-sm btn-secondary mt-2" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

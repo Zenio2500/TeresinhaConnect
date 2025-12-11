@@ -23,6 +23,66 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="app-container">
+      <% unless current_page?(controller: 'sessions', action: 'new') %>
+        <!-- Header -->
+        <header class="app-header">
+          <div class="app-header-content">
+            <h1 class="app-title">
+              <span class="app-title-icon">✞</span>
+              Teresinha Connect
+            </h1>
+            <% if session[:user_id] %>
+              <div>
+                <%= link_to "Sair", logout_path, method: :delete, class: "btn btn-sm btn-outline", style: "color: white; border-color: white;" %>
+              </div>
+            <% end %>
+          </div>
+        </header>
+
+        <!-- Navigation -->
+        <% if session[:user_id] %>
+          <nav class="app-nav">
+            <div class="app-nav-content">
+              <%= link_to "Usuários", users_path, class: "nav-link #{current_page?(controller: 'users') ? 'active' : ''}" %>
+              <%= link_to "Pastorais", pastorals_path, class: "nav-link #{current_page?(controller: 'pastorals') ? 'active' : ''}" %>
+              <%= link_to "Leitores", readers_path, class: "nav-link #{current_page?(controller: 'readers') ? 'active' : ''}" %>
+              <%= link_to "Escalas", grades_path, class: "nav-link #{current_page?(controller: 'grades') ? 'active' : ''}" %>
+            </div>
+          </nav>
+        <% end %>
+      <% end %>
+
+      <!-- Main Content -->
+      <main class="app-main">
+        <!-- Flash Messages -->
+        <% if flash[:notice] %>
+          <div class="alert alert-success">
+            <%= flash[:notice] %>
+          </div>
+        <% end %>
+
+        <% if flash[:alert] %>
+          <div class="alert alert-danger">
+            <%= flash[:alert] %>
+          </div>
+        <% end %>
+
+        <% if flash[:error] %>
+          <div class="alert alert-danger">
+            <%= flash[:error] %>
+          </div>
+        <% end %>
+
+        <%= yield %>
+      </main>
+
+      <!-- Footer -->
+      <% unless current_page?(controller: 'sessions', action: 'new') %>
+        <footer class="app-footer">
+          <p>&copy; <%= Time.now.year %> Teresinha Connect - Sistema de Gestão Paroquial</p>
+        </footer>
+      <% end %>
+    </div>
   </body>
 </html>

@@ -1,0 +1,10 @@
+<div class="mb-4">
+  <h1>Editar Pastoral</h1>
+  <p style="color: var(--gray-600);">Atualizar informações da pastoral <%= @pastoral.name %></p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <%= render "form", pastoral: @pastoral %>
+  </div>
+</div>

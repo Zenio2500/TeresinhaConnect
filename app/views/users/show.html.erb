@@ -1,0 +1,70 @@
+<div class="mb-4">
+  <h1><%= @user.name %></h1>
+  <p style="color: var(--gray-600);">Detalhes do usuário</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Informações do Usuário</h3>
+    <div class="btn-group">
+      <%= link_to "Editar", edit_user_path(@user), class: "btn btn-sm btn-warning" %>
+      <%= link_to "Voltar", users_path, class: "btn btn-sm btn-secondary" %>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <ul class="detail-list">
+      <li class="detail-list-item">
+        <span class="detail-list-label">Nome:</span>
+        <span class="detail-list-value"><strong><%= @user.name %></strong></span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">E-mail:</span>
+        <span class="detail-list-value"><%= @user.email %></span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Coordenador:</span>
+        <span class="detail-list-value">
+          <% if @user.is_coordinator %>
+            <span class="badge badge-primary">Sim</span>
+          <% else %>
+            <span class="badge badge-secondary">Não</span>
+          <% end %>
+        </span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Cadastrado em:</span>
+        <span class="detail-list-value"><%= @user.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Última atualização:</span>
+        <span class="detail-list-value"><%= @user.updated_at.strftime("%d/%m/%Y às %H:%M") %></span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<% if @user.pastorals.any? %>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Pastorais</h3>
+    </div>
+    
+    <div class="card-body">
+      <div class="grid grid-2">
+        <% @user.pastorals.each do |pastoral| %>
+          <div class="card">
+            <div class="card-body">
+              <h4><%= pastoral.name %></h4>
+              <%= link_to "Ver Pastoral", pastoral_path(pastoral), class: "btn btn-sm btn-secondary mt-2" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

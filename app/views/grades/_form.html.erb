@@ -1,0 +1,85 @@
+<%= form_with(model: grade, local: true) do |f| %>
+  <%# Exibir erros de validação %>
+  <% if grade.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(grade.errors.count, "erro") %> <%= grade.errors.count == 1 ? "impediu" : "impediram" %> que esta escala fosse salva:</h4>
+      <ul style="margin-top: var(--spacing-sm); margin-left: var(--spacing-lg);">
+        <% grade.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :date, "Data da Celebração", class: "form-label required" %>
+    <%= f.date_field :date, class: "form-control #{grade.errors[:date].any? ? 'is-invalid' : ''}", 
+        required: true %>
+    <% if grade.errors[:date].any? %>
+      <div class="invalid-feedback">
+        <%= grade.errors[:date].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :liturgical_color, "Cor Litúrgica", class: "form-label" %>
+    <div style="margin-top: var(--spacing-sm); display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+      <% [
+        ['Verde', 'green'], 
+        ['Branco', 'white'], 
+        ['Roxo', 'purple'], 
+        ['Vermelho', 'red'], 
+        ['Rosa', 'pink']
+      ].each do |name, color| %>
+        <label style="cursor: pointer;">
+          <%= f.radio_button :liturgical_color, name, 
+              id: "grade_liturgical_color_#{color}",
+              style: "display: none;" %>
+          <span class="liturgical-color liturgical-<%= color %>" 
+                style="cursor: pointer; padding: var(--spacing-md); <%= grade.liturgical_color == name ? 'border: 3px solid var(--primary);' : '' %>"
+                onclick="document.getElementById('grade_liturgical_color_<%= color %>').checked = true;">
+            <span class="liturgical-color-indicator"></span>
+            <%= name %>
+          </span>
+        </label>
+      <% end %>
+    </div>
+    <span class="form-text">Selecione a cor litúrgica conforme o calendário católico</span>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :liturgical_time, "Tempo Litúrgico", class: "form-label" %>
+    <%= f.select :liturgical_time, 
+        [
+          ['Advento', 'Advento'],
+          ['Natal', 'Natal'],
+          ['Quaresma', 'Quaresma'],
+          ['Páscoa', 'Páscoa'],
+          ['Tempo Comum', 'Tempo Comum']
+        ],
+        { prompt: "Selecione o tempo litúrgico" }, 
+        { class: "form-control" } %>
+    <span class="form-text">Opcional - Tempo do ano litúrgico</span>
+  </div>
+
+  <div class="form-group">
+    <div class="form-check">
+      <%= f.check_box :is_solemnity, class: "form-check-input" %>
+      <%= f.label :is_solemnity, "Esta celebração é uma solenidade", class: "form-check-label" %>
+    </div>
+    <span class="form-text">Marque se for uma solenidade especial (Natal, Páscoa, etc.)</span>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description, "Descrição", class: "form-label" %>
+    <%= f.text_area :description, class: "form-control", 
+        placeholder: "Ex: Missa de Natal, Domingo de Ramos, etc.", rows: 3 %>
+    <span class="form-text">Opcional - Informações adicionais sobre a celebração</span>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit grade.persisted? ? "Atualizar Escala" : "Criar Escala", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", grade.persisted? ? grade_path(grade) : grades_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

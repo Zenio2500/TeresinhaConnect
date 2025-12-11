@@ -1,0 +1,52 @@
+<div class="mb-4">
+  <h1>Pastorais</h1>
+  <p style="color: var(--gray-600);">Gerencie as pastorais da paróquia</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Todas as Pastorais (<%= @pastorals.count %>)</h3>
+    <%= link_to "➕ Nova Pastoral", new_pastoral_path, class: "btn btn-primary" %>
+  </div>
+  
+  <div class="card-body p-0">
+    <% if @pastorals.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Coordenador</th>
+              <th>Vice-Coordenador</th>
+              <th>Membros</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @pastorals.each do |pastoral| %>
+              <tr>
+                <td><strong><%= pastoral.name %></strong></td>
+                <td><%= pastoral.coordinator&.name || 'N/A' %></td>
+                <td><%= pastoral.vice_coordinator&.name || 'N/A' %></td>
+                <td><%= pastoral.users.count %></td>
+                <td class="text-center">
+                  <div class="btn-group">
+                    <%= link_to "Ver", pastoral_path(pastoral), class: "btn btn-sm btn-secondary" %>
+                    <%= link_to "Editar", edit_pastoral_path(pastoral), class: "btn btn-sm btn-warning" %>
+                    <%= button_to "Excluir", pastoral_path(pastoral), method: :delete, 
+                        data: { confirm: "Tem certeza que deseja excluir esta pastoral?" }, 
+                        class: "btn btn-sm btn-danger" %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p style="color: var(--gray-600); text-align: center; padding: var(--spacing-xl);">
+        Nenhuma pastoral cadastrada ainda.
+      </p>
+    <% end %>
+  </div>
+</div>

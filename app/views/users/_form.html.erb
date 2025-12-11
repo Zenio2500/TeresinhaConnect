@@ -1,0 +1,68 @@
+<%= form_with(model: user, local: true) do |f| %>
+  <%# Exibir erros de validação %>
+  <% if user.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(user.errors.count, "erro") %> <%= user.errors.count == 1 ? "impediu" : "impediram" %> que este usuário fosse salvo:</h4>
+      <ul style="margin-top: var(--spacing-sm); margin-left: var(--spacing-lg);">
+        <% user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :name, "Nome Completo", class: "form-label required" %>
+    <%= f.text_field :name, class: "form-control #{user.errors[:name].any? ? 'is-invalid' : ''}", 
+        placeholder: "Ex: João da Silva", autofocus: true, required: true %>
+    <% if user.errors[:name].any? %>
+      <div class="invalid-feedback">
+        <%= user.errors[:name].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :email, "E-mail", class: "form-label required" %>
+    <%= f.email_field :email, class: "form-control #{user.errors[:email].any? ? 'is-invalid' : ''}", 
+        placeholder: "exemplo@email.com", required: true %>
+    <% if user.errors[:email].any? %>
+      <div class="invalid-feedback">
+        <%= user.errors[:email].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :password, user.persisted? ? "Nova Senha (deixe em branco para manter a atual)" : "Senha", 
+        class: "form-label #{user.persisted? ? '' : 'required'}" %>
+    <%= f.password_field :password, class: "form-control #{user.errors[:password].any? ? 'is-invalid' : ''}", 
+        placeholder: "••••••••", required: !user.persisted? %>
+    <span class="form-text">Mínimo de 6 caracteres</span>
+    <% if user.errors[:password].any? %>
+      <div class="invalid-feedback">
+        <%= user.errors[:password].first %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :password_confirmation, "Confirmar Senha", 
+        class: "form-label #{user.persisted? ? '' : 'required'}" %>
+    <%= f.password_field :password_confirmation, class: "form-control", 
+        placeholder: "••••••••", required: !user.persisted? %>
+  </div>
+
+  <div class="form-group">
+    <div class="form-check">
+      <%= f.check_box :is_coordinator, class: "form-check-input" %>
+      <%= f.label :is_coordinator, "Este usuário é coordenador", class: "form-check-label" %>
+    </div>
+    <span class="form-text">Coordenadores podem ser designados para pastorais</span>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit user.persisted? ? "Atualizar Usuário" : "Criar Usuário", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", user.persisted? ? user_path(user) : users_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

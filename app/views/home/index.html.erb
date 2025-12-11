@@ -1,0 +1,95 @@
+<div class="mb-4">
+  <h1>Bem-vindo(a)<% if @current_user %>, <%= @current_user.name %><% end %>!</h1>
+  <p style="color: var(--gray-600); font-size: 1.1rem;">Painel de Controle - Teresinha Connect</p>
+</div>
+
+<!-- Estatísticas -->
+<div class="grid grid-2 mb-4">
+  <div class="stat-card">
+    <div class="stat-card-value"><%= @users_count %></div>
+    <div class="stat-card-label">Usuários Cadastrados</div>
+  </div>
+
+  <div class="stat-card stat-success">
+    <div class="stat-card-value"><%= @pastorals_count %></div>
+    <div class="stat-card-label">Pastorais Ativas</div>
+  </div>
+
+  <div class="stat-card stat-info">
+    <div class="stat-card-value"><%= @readers_count %></div>
+    <div class="stat-card-label">Leitores Disponíveis</div>
+  </div>
+
+  <div class="stat-card stat-warning">
+    <div class="stat-card-value"><%= @grades_count %></div>
+    <div class="stat-card-label">Escalas Criadas</div>
+  </div>
+</div>
+
+<!-- Próximas Escalas -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Próximas Escalas Litúrgicas</h3>
+    <%= link_to "Ver Todas", grades_path, class: "btn btn-sm btn-primary" %>
+  </div>
+  <div class="card-body">
+    <% if @upcoming_grades.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cor Litúrgica</th>
+              <th>Tempo Litúrgico</th>
+              <th>Solenidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @upcoming_grades.each do |grade| %>
+              <tr>
+                <td><%= grade.date.strftime("%d/%m/%Y") %></td>
+                <td>
+                  <span class="liturgical-color liturgical-<%= grade.liturgical_color&.downcase %>">
+                    <span class="liturgical-color-indicator"></span>
+                    <%= grade.liturgical_color&.capitalize || 'N/A' %>
+                  </span>
+                </td>
+                <td><%= grade.liturgical_time %></td>
+                <td>
+                  <% if grade.is_solemnity %>
+                    <span class="badge badge-warning">Sim</span>
+                  <% else %>
+                    <span class="badge badge-secondary">Não</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to "Ver", grade_path(grade), class: "btn btn-sm btn-secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p style="color: var(--gray-600); text-align: center; padding: var(--spacing-xl);">
+        Nenhuma escala programada no momento.
+      </p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Links Rápidos -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Acesso Rápido</h3>
+  </div>
+  <div class="card-body">
+    <div class="btn-group">
+      <%= link_to "➕ Novo Usuário", new_user_path, class: "btn btn-primary" %>
+      <%= link_to "➕ Nova Pastoral", new_pastoral_path, class: "btn btn-success" %>
+      <%= link_to "➕ Novo Leitor", new_reader_path, class: "btn btn-info" %>
+      <%= link_to "➕ Nova Escala", new_grade_path, class: "btn btn-warning" %>
+    </div>
+  </div>
+</div>

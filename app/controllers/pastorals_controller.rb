@@ -1,40 +1,65 @@
 class PastoralsController < ApplicationController
-  respond_to :json
+  respond_to :json, :html
 
   before_action :authenticate_user!
-  before_action :set_pastoral, only: %i[ show update destroy ]
+  before_action :set_pastoral, only: %i[ show edit update destroy ]
   before_action :set_pastorals, only: %i[ index ]
 
   def index
-    respond_with(@pastorals)
+    respond_to do |format|
+      format.html
+      format.json { respond_with(@pastorals) }
+    end
   end
 
   def show
-    respond_with(@pastoral)
+    respond_to do |format|
+      format.html
+      format.json { respond_with(@pastoral) }
+    end
+  end
+
+  def new
+    @pastoral = Pastoral.new
+  end
+
+  def edit
   end
 
   def create
     @pastoral = Pastoral.new(pastoral_params)
-    if @pastoral.save
-      render json: @pastoral, status: :created
-    else
-      render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity
+    respond_to do |format|
+      if @pastoral.save
+        format.html { redirect_to pastoral_path(@pastoral), notice: "Pastoral criada com sucesso." }
+        format.json { render json: @pastoral, status: :created }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
   def update
-    if @pastoral.update(pastoral_params)
-      render json: @pastoral, status: :ok
-    else
-      render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity
+    respond_to do |format|
+      if @pastoral.update(pastoral_params)
+        format.html { redirect_to pastoral_path(@pastoral), notice: "Pastoral atualizada com sucesso." }
+        format.json { render json: @pastoral, status: :ok }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
-    if @pastoral.destroy
-      head :no_content
-    else
-      render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity
+    respond_to do |format|
+      if @pastoral.destroy
+        format.html { redirect_to pastorals_path, notice: "Pastoral excluída com sucesso." }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to pastorals_path, alert: "Erro ao excluir pastoral." }
+        format.json { render json: { errors: @pastoral.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -1,0 +1,10 @@
+<div class="mb-4">
+  <h1>Editar Escala Litúrgica</h1>
+  <p style="color: var(--gray-600);">Atualizar informações da escala de <%= @grade.date.strftime("%d/%m/%Y") %></p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <%= render "form", grade: @grade %>
+  </div>
+</div>

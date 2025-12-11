@@ -1,0 +1,98 @@
+<div class="mb-4">
+  <h1>Escala - <%= @grade.date.strftime("%d/%m/%Y") %></h1>
+  <p style="color: var(--gray-600);">Detalhes da escala litúrgica</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Informações da Celebração</h3>
+    <div class="btn-group">
+      <%= link_to "Editar", edit_grade_path(@grade), class: "btn btn-sm btn-warning" %>
+      <%= link_to "Voltar", grades_path, class: "btn btn-sm btn-secondary" %>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    <ul class="detail-list">
+      <li class="detail-list-item">
+        <span class="detail-list-label">Data:</span>
+        <span class="detail-list-value">
+          <strong><%= @grade.date.strftime("%d/%m/%Y") %></strong>
+          (<%= I18n.l(@grade.date, format: '%A') %>)
+        </span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Cor Litúrgica:</span>
+        <span class="detail-list-value">
+          <% if @grade.liturgical_color.present? %>
+            <span class="liturgical-color liturgical-<%= @grade.liturgical_color.downcase %>">
+              <span class="liturgical-color-indicator"></span>
+              <%= @grade.liturgical_color.capitalize %>
+            </span>
+          <% else %>
+            N/A
+          <% end %>
+        </span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Tempo Litúrgico:</span>
+        <span class="detail-list-value"><%= @grade.liturgical_time || 'N/A' %></span>
+      </li>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Solenidade:</span>
+        <span class="detail-list-value">
+          <% if @grade.is_solemnity %>
+            <span class="badge badge-warning">Sim</span>
+          <% else %>
+            <span class="badge badge-secondary">Não</span>
+          <% end %>
+        </span>
+      </li>
+      
+      <% if @grade.description.present? %>
+        <li class="detail-list-item">
+          <span class="detail-list-label">Descrição:</span>
+          <span class="detail-list-value"><%= @grade.description %></span>
+        </li>
+      <% end %>
+      
+      <li class="detail-list-item">
+        <span class="detail-list-label">Cadastrada em:</span>
+        <span class="detail-list-value"><%= @grade.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<% if @grade.readers.any? %>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Leitores Designados</h3>
+    </div>
+    
+    <div class="card-body">
+      <div class="grid grid-3">
+        <% @grade.readers.each do |reader| %>
+          <div class="card">
+            <div class="card-body">
+              <h5><%= reader.user&.name || 'N/A' %></h5>
+              <p style="color: var(--gray-600); font-size: 0.9rem;">
+                <%= reader.user&.email || '' %>
+              </p>
+              <%= link_to "Ver Leitor", reader_path(reader), class: "btn btn-sm btn-secondary mt-2" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <div class="card">
+    <div class="card-body text-center" style="color: var(--gray-600); padding: var(--spacing-xl);">
+      <p>Nenhum leitor designado para esta escala ainda.</p>
+    </div>
+  </div>
+<% end %>

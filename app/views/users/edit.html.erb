@@ -1,0 +1,10 @@
+<div class="mb-4">
+  <h1>Editar Usuário</h1>
+  <p style="color: var(--gray-600);">Atualizar informações do usuário <%= @user.name %></p>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <%= render "form", user: @user %>
+  </div>
+</div>
