@@ -33,7 +33,8 @@
               Teresinha Connect
             </h1>
             <% if session[:user_id] %>
-              <div>
+              <div class="btn-group">
+                <%= link_to "Editar Perfil", edit_user_path(session[:user_id]), class: "btn btn-sm btn-outline", style: "color: white; border-color: white; margin-right: 8px;" %>
                 <%= link_to "Sair", logout_path, method: :delete, class: "btn btn-sm btn-outline", style: "color: white; border-color: white;" %>
               </div>
             <% end %>
@@ -44,6 +45,7 @@
         <% if session[:user_id] %>
           <nav class="app-nav">
             <div class="app-nav-content">
+              <%= link_to "Painel de Controle", dashboard_path, class: "nav-link #{current_page?(controller: 'home') ? 'active' : ''}" %>
               <%= link_to "Usuários", users_path, class: "nav-link #{current_page?(controller: 'users') ? 'active' : ''}" %>
               <%= link_to "Pastorais", pastorals_path, class: "nav-link #{current_page?(controller: 'pastorals') ? 'active' : ''}" %>
               <%= link_to "Leitores", readers_path, class: "nav-link #{current_page?(controller: 'readers') ? 'active' : ''}" %>

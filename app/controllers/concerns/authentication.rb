@@ -7,14 +7,23 @@ module Authentication
 
   def authenticate_user!
     unless user_signed_in?
-      render json: { error: 'Not authenticated' }, status: :unauthorized
+      respond_to do |format|
+        format.html { redirect_to login_path, alert: 'Você precisa fazer login para acessar esta página.' }
+        format.json { render json: { error: 'Not authenticated' }, status: :unauthorized }
+      end
     end
   end
 
   def current_user
-    @current_user ||= authenticate_with_http_basic do |email, password|
-      user = User.find_by(email: email)
-      user if user&.authenticate(password)
+    @current_user ||= begin
+      if session[:user_id]
+        User.find_by(id: session[:user_id])
+      else
+        authenticate_with_http_basic do |email, password|
+          user = User.find_by(email: email)
+          user if user&.authenticate(password)
+        end
+      end
     end
   end
 

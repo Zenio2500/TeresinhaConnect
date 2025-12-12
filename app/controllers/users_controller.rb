@@ -78,10 +78,10 @@ class UsersController < ApplicationController
   end
 
   def set_users
-    @users = User.all
+    @users = User.all.order(:name)
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation, :is_coordinator)
+    params.require(:user).permit(:name, :email, :password, :password_confirmation)
   end
 end

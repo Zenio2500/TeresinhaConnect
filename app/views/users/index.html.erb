@@ -6,7 +6,6 @@
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Todos os Usuários (<%= @users.count %>)</h3>
-    <%= link_to "➕ Novo Usuário", new_user_path, class: "btn btn-primary" %>
   </div>
   
   <div class="card-body p-0">
@@ -18,7 +17,7 @@
               <th>Nome</th>
               <th>E-mail</th>
               <th>Coordenador</th>
-              <th class="text-center">Ações</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -33,14 +32,8 @@
                     <span class="badge badge-secondary">Não</span>
                   <% end %>
                 </td>
-                <td class="text-center">
-                  <div class="btn-group">
-                    <%= link_to "Ver", user_path(user), class: "btn btn-sm btn-secondary" %>
-                    <%= link_to "Editar", edit_user_path(user), class: "btn btn-sm btn-warning" %>
-                    <%= button_to "Excluir", user_path(user), method: :delete, 
-                        data: { confirm: "Tem certeza que deseja excluir este usuário?" }, 
-                        class: "btn btn-sm btn-danger" %>
-                  </div>
+                <td>
+                  <%= link_to "Ver", user_path(user), class: "btn btn-sm btn-secondary" %>
                 </td>
               </tr>
             <% end %>

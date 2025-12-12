@@ -32,10 +32,15 @@
                 <td class="text-center">
                   <div class="btn-group">
                     <%= link_to "Ver", pastoral_path(pastoral), class: "btn btn-sm btn-secondary" %>
-                    <%= link_to "Editar", edit_pastoral_path(pastoral), class: "btn btn-sm btn-warning" %>
-                    <%= button_to "Excluir", pastoral_path(pastoral), method: :delete, 
-                        data: { confirm: "Tem certeza que deseja excluir esta pastoral?" }, 
-                        class: "btn btn-sm btn-danger" %>
+                    <% current_user = User.find_by(id: session[:user_id]) %>
+                    <% if can_edit_pastoral?(current_user, pastoral) %>
+                      <%= link_to "Editar", edit_pastoral_path(pastoral), class: "btn btn-sm btn-warning" %>
+                    <% end %>
+                    <% if can_delete_pastoral?(current_user) %>
+                      <%= button_to "Excluir", pastoral_path(pastoral), method: :delete, 
+                          data: { confirm: "Tem certeza que deseja excluir esta pastoral?" }, 
+                          class: "btn btn-sm btn-danger" %>
+                    <% end %>
                   </div>
                 </td>
               </tr>

@@ -25,11 +25,11 @@
   <div class="form-group">
     <%= f.label :coordinator_id, "Coordenador", class: "form-label required" %>
     <%= f.collection_select :coordinator_id, 
-        User.where(is_coordinator: true).order(:name), 
+        User.order(:name), 
         :id, :name, 
         { prompt: "Selecione um coordenador" }, 
         { class: "form-control #{pastoral.errors[:coordinator_id].any? ? 'is-invalid' : ''}", required: true } %>
-    <span class="form-text">Apenas usuários marcados como coordenadores aparecem nesta lista</span>
+    <span class="form-text">O usuário selecionado será automaticamente marcado como coordenador</span>
     <% if pastoral.errors[:coordinator_id].any? %>
       <div class="invalid-feedback">
         <%= pastoral.errors[:coordinator_id].first %>
@@ -40,11 +40,11 @@
   <div class="form-group">
     <%= f.label :vice_coordinator_id, "Vice-Coordenador", class: "form-label required" %>
     <%= f.collection_select :vice_coordinator_id, 
-        User.where(is_coordinator: true).order(:name), 
+        User.order(:name), 
         :id, :name, 
         { prompt: "Selecione um vice-coordenador" }, 
         { class: "form-control #{pastoral.errors[:vice_coordinator_id].any? ? 'is-invalid' : ''}", required: true } %>
-    <span class="form-text">Deve ser diferente do coordenador</span>
+    <span class="form-text">Deve ser diferente do coordenador. Será automaticamente marcado como coordenador</span>
     <% if pastoral.errors[:vice_coordinator_id].any? %>
       <div class="invalid-feedback">
         <%= pastoral.errors[:vice_coordinator_id].first %>
@@ -60,7 +60,9 @@
   </div>
 
   <div class="form-actions">
-    <%= f.submit pastoral.persisted? ? "Atualizar Pastoral" : "Criar Pastoral", class: "btn btn-primary" %>
+    <%= f.submit pastoral.persisted? ? "Atualizar Pastoral" : "Criar Pastoral", 
+        class: "btn btn-primary",
+        data: { confirm: pastoral.persisted? ? "Tem certeza que deseja atualizar esta pastoral? Os coordenadores podem ter seu status alterado." : nil } %>
     <%= link_to "Cancelar", pastoral.persisted? ? pastoral_path(pastoral) : pastorals_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

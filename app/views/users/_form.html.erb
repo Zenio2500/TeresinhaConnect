@@ -53,16 +53,10 @@
         placeholder: "••••••••", required: !user.persisted? %>
   </div>
 
-  <div class="form-group">
-    <div class="form-check">
-      <%= f.check_box :is_coordinator, class: "form-check-input" %>
-      <%= f.label :is_coordinator, "Este usuário é coordenador", class: "form-check-label" %>
-    </div>
-    <span class="form-text">Coordenadores podem ser designados para pastorais</span>
-  </div>
-
   <div class="form-actions">
-    <%= f.submit user.persisted? ? "Atualizar Usuário" : "Criar Usuário", class: "btn btn-primary" %>
+    <%= f.submit user.persisted? ? "Atualizar Usuário" : "Criar Usuário", 
+        class: "btn btn-primary",
+        data: { confirm: user.persisted? ? "Tem certeza que deseja atualizar suas informações?" : nil } %>
     <%= link_to "Cancelar", user.persisted? ? user_path(user) : users_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

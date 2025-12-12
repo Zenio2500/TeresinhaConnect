@@ -7,7 +7,6 @@
   <div class="card-header">
     <h3 class="card-title">Informações do Usuário</h3>
     <div class="btn-group">
-      <%= link_to "Editar", edit_user_path(@user), class: "btn btn-sm btn-warning" %>
       <%= link_to "Voltar", users_path, class: "btn btn-sm btn-secondary" %>
     </div>
   </div>
@@ -27,8 +26,16 @@
       <li class="detail-list-item">
         <span class="detail-list-label">Coordenador:</span>
         <span class="detail-list-value">
-          <% if @user.is_coordinator %>
+          <% coordinator_pastorals = Pastoral.where(coordinator_id: @user.id) %>
+          <% if coordinator_pastorals.any? %>
             <span class="badge badge-primary">Sim</span>
+            <div style="margin-top: 8px;">
+              <% coordinator_pastorals.each do |pastoral| %>
+                <div style="margin-bottom: 4px;">
+                  <strong>Pastoral:</strong> <%= link_to pastoral.name, pastoral_path(pastoral), style: "color: var(--primary);" %>
+                </div>
+              <% end %>
+            </div>
           <% else %>
             <span class="badge badge-secondary">Não</span>
           <% end %>
@@ -36,13 +43,22 @@
       </li>
       
       <li class="detail-list-item">
-        <span class="detail-list-label">Cadastrado em:</span>
-        <span class="detail-list-value"><%= @user.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
-      </li>
-      
-      <li class="detail-list-item">
-        <span class="detail-list-label">Última atualização:</span>
-        <span class="detail-list-value"><%= @user.updated_at.strftime("%d/%m/%Y às %H:%M") %></span>
+        <span class="detail-list-label">Vice-Coordenador:</span>
+        <span class="detail-list-value">
+          <% vice_coordinator_pastorals = Pastoral.where(vice_coordinator_id: @user.id) %>
+          <% if vice_coordinator_pastorals.any? %>
+            <span class="badge badge-primary">Sim</span>
+            <div style="margin-top: 8px;">
+              <% vice_coordinator_pastorals.each do |pastoral| %>
+                <div style="margin-bottom: 4px;">
+                  <strong>Pastoral:</strong> <%= link_to pastoral.name, pastoral_path(pastoral), style: "color: var(--primary);" %>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="badge badge-secondary">Não</span>
+          <% end %>
+        </span>
       </li>
     </ul>
   </div>

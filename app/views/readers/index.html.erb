@@ -3,6 +3,14 @@
   <p style="color: var(--gray-600);">Gerencie os leitores para as celebrações litúrgicas</p>
 </div>
 
+<!-- Estatística de Leitores -->
+<div class="grid grid-1 mb-4">
+  <div class="stat-card stat-info">
+    <div class="stat-card-value"><%= @readers.count %></div>
+    <div class="stat-card-label">Leitores Disponíveis</div>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Todos os Leitores (<%= @readers.count %>)</h3>

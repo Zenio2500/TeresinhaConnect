@@ -79,7 +79,9 @@
   </div>
 
   <div class="form-actions">
-    <%= f.submit grade.persisted? ? "Atualizar Escala" : "Criar Escala", class: "btn btn-primary" %>
+    <%= f.submit grade.persisted? ? "Atualizar Escala" : "Criar Escala", 
+        class: "btn btn-primary",
+        data: { confirm: grade.persisted? ? "Tem certeza que deseja atualizar esta escala?" : nil } %>
     <%= link_to "Cancelar", grade.persisted? ? grade_path(grade) : grades_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

@@ -3,6 +3,14 @@
   <p style="color: var(--gray-600);">Gerencie as escalas de leitores para as celebrações</p>
 </div>
 
+<!-- Estatística de Escalas -->
+<div class="grid grid-1 mb-4">
+  <div class="stat-card stat-warning">
+    <div class="stat-card-value"><%= @grades.count %></div>
+    <div class="stat-card-label">Escalas Criadas</div>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Todas as Escalas (<%= @grades.count %>)</h3>

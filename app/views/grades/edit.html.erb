@@ -1,6 +1,14 @@
-<div class="mb-4">
-  <h1>Editar Escala Litúrgica</h1>
-  <p style="color: var(--gray-600);">Atualizar informações da escala de <%= @grade.date.strftime("%d/%m/%Y") %></p>
+<div class="mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1>Editar Escala Litúrgica</h1>
+    <p style="color: var(--gray-600);">Atualizar informações da escala de <%= @grade.date.strftime("%d/%m/%Y") %></p>
+  </div>
+  <%= button_to grade_path(@grade), method: :delete, 
+      class: "btn btn-danger", 
+      style: "height: fit-content;",
+      data: { confirm: "Tem certeza que deseja excluir esta escala? Esta ação não pode ser desfeita." } do %>
+    🗑️ Excluir Escala
+  <% end %>
 </div>
 
 <div class="card">

@@ -1,6 +1,14 @@
-<div class="mb-4">
-  <h1>Editar Leitor</h1>
-  <p style="color: var(--gray-600);">Atualizar informações do leitor</p>
+<div class="mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <h1>Editar Leitor</h1>
+    <p style="color: var(--gray-600);">Atualizar informações do leitor</p>
+  </div>
+  <%= button_to reader_path(@reader), method: :delete, 
+      class: "btn btn-danger", 
+      style: "height: fit-content;",
+      data: { confirm: "Tem certeza que deseja excluir este leitor? Esta ação não pode ser desfeita." } do %>
+    🗑️ Excluir Leitor
+  <% end %>
 </div>
 
 <div class="card">

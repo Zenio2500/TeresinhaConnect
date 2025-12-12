@@ -59,7 +59,9 @@
   </div>
 
   <div class="form-actions">
-    <%= f.submit reader.persisted? ? "Atualizar Leitor" : "Criar Leitor", class: "btn btn-primary" %>
+    <%= f.submit reader.persisted? ? "Atualizar Leitor" : "Criar Leitor", 
+        class: "btn btn-primary",
+        data: { confirm: reader.persisted? ? "Tem certeza que deseja atualizar este leitor?" : nil } %>
     <%= link_to "Cancelar", reader.persisted? ? reader_path(reader) : readers_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

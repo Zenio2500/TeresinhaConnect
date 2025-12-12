@@ -3,11 +3,79 @@
   <p style="color: var(--gray-600);">Detalhes da pastoral</p>
 </div>
 
+<% if @pastoral.name.downcase == "liturgia" %>
+  <!-- Estatísticas da Pastoral Liturgia -->
+  <div class="grid grid-2 mb-4">
+    <div class="stat-card stat-info">
+      <div class="stat-card-value"><%= @readers_count %></div>
+      <div class="stat-card-label">Leitores Cadastrados</div>
+    </div>
+
+    <div class="stat-card stat-warning">
+      <div class="stat-card-value"><%= @grades_count %></div>
+      <div class="stat-card-label">Escalas Litúrgicas</div>
+    </div>
+  </div>
+
+  <% if @upcoming_grades.any? %>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Próximas Escalas Litúrgicas</h3>
+        <%= link_to "Ver Todas", grades_path, class: "btn btn-sm btn-secondary" %>
+      </div>
+      
+      <div class="card-body p-0">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Cor Litúrgica</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @upcoming_grades.each do |grade| %>
+                <tr>
+                  <td><strong><%= grade.date.strftime("%d/%m/%Y") %></strong></td>
+                  <td><%= grade.description.present? ? grade.description : "Sem descrição" %></td>
+                  <td>
+                    <% if grade.liturgical_color.present? %>
+                      <span class="liturgical-color liturgical-<%= grade.liturgical_color.downcase %>">
+                        <span class="liturgical-color-indicator"></span>
+                        <%= grade.liturgical_color %>
+                      </span>
+                    <% else %>
+                      N/A
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <%= link_to "Ver", grade_path(grade), class: "btn btn-sm btn-secondary" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Informações da Pastoral</h3>
     <div class="btn-group">
-      <%= link_to "Editar", edit_pastoral_path(@pastoral), class: "btn btn-sm btn-warning" %>
+      <% current_user = User.find_by(id: session[:user_id]) %>
+      <% if can_edit_pastoral?(current_user, @pastoral) %>
+        <%= link_to "Editar", edit_pastoral_path(@pastoral), class: "btn btn-sm btn-warning" %>
+      <% end %>
+      <% if can_delete_pastoral?(current_user) %>
+        <%= button_to "Excluir", pastoral_path(@pastoral), method: :delete, 
+            data: { confirm: "Tem certeza que deseja excluir esta pastoral?" }, 
+            class: "btn btn-sm btn-danger" %>
+      <% end %>
       <%= link_to "Voltar", pastorals_path, class: "btn btn-sm btn-secondary" %>
     </div>
   </div>
@@ -53,11 +121,6 @@
         <span class="detail-list-value">
           <span class="badge badge-primary"><%= @pastoral.users.count %></span>
         </span>
-      </li>
-      
-      <li class="detail-list-item">
-        <span class="detail-list-label">Cadastrada em:</span>
-        <span class="detail-list-value"><%= @pastoral.created_at.strftime("%d/%m/%Y às %H:%M") %></span>
       </li>
     </ul>
   </div>
