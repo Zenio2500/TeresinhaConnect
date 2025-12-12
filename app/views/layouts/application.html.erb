@@ -48,8 +48,6 @@
               <%= link_to "Painel de Controle", dashboard_path, class: "nav-link #{current_page?(controller: 'home') ? 'active' : ''}" %>
               <%= link_to "Usuários", users_path, class: "nav-link #{current_page?(controller: 'users') ? 'active' : ''}" %>
               <%= link_to "Pastorais", pastorals_path, class: "nav-link #{current_page?(controller: 'pastorals') ? 'active' : ''}" %>
-              <%= link_to "Leitores", readers_path, class: "nav-link #{current_page?(controller: 'readers') ? 'active' : ''}" %>
-              <%= link_to "Escalas", grades_path, class: "nav-link #{current_page?(controller: 'grades') ? 'active' : ''}" %>
             </div>
           </nav>
         <% end %>

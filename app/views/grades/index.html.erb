@@ -3,18 +3,16 @@
   <p style="color: var(--gray-600);">Gerencie as escalas de leitores para as celebrações</p>
 </div>
 
-<!-- Estatística de Escalas -->
-<div class="grid grid-1 mb-4">
-  <div class="stat-card stat-warning">
-    <div class="stat-card-value"><%= @grades.count %></div>
-    <div class="stat-card-label">Escalas Criadas</div>
-  </div>
-</div>
-
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Todas as Escalas (<%= @grades.count %>)</h3>
-    <%= link_to "➕ Nova Escala", new_grade_path, class: "btn btn-primary" %>
+    <div class="btn-group">
+      <%= link_to "➕ Nova Escala", new_grade_path, class: "btn btn-primary" %>
+      <% liturgia_pastoral = Pastoral.find_by("LOWER(name) = ?", "liturgia") %>
+      <% if liturgia_pastoral %>
+        <%= link_to "Voltar", pastoral_path(liturgia_pastoral), class: "btn btn-secondary" %>
+      <% end %>
+    </div>
   </div>
   
   <div class="card-body p-0">
@@ -64,9 +62,7 @@
                   <div class="btn-group">
                     <%= link_to "Ver", grade_path(grade), class: "btn btn-sm btn-secondary" %>
                     <%= link_to "Editar", edit_grade_path(grade), class: "btn btn-sm btn-warning" %>
-                    <%= button_to "Excluir", grade_path(grade), method: :delete, 
-                        data: { confirm: "Tem certeza que deseja excluir esta escala?" }, 
-                        class: "btn btn-sm btn-danger" %>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="showDeleteGradeModal<%= grade.id %>()">Excluir</button>
                   </div>
                 </td>
               </tr>
@@ -81,3 +77,51 @@
     <% end %>
   </div>
 </div>
+
+<!-- Modais de Confirmação de Exclusão -->
+<% @grades.each do |grade| %>
+  <div id="delete-grade-modal-<%= grade.id %>" class="modal-overlay" style="display: none;">
+    <div class="confirmation-modal">
+      <div class="modal-header">
+        <span class="modal-icon danger">🗑️</span>
+        <h3 class="modal-title">Confirmar Exclusão de Escala</h3>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir a escala de <strong><%= grade.date.strftime("%d/%m/%Y") %></strong>?</p>
+        <p>Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeDeleteGradeModal<%= grade.id %>()">Cancelar</button>
+        <%= button_to "Confirmar Exclusão", grade_path(grade), 
+            method: :delete, 
+            class: "btn btn-danger" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<script>
+  <% @grades.each do |grade| %>
+    function showDeleteGradeModal<%= grade.id %>() {
+      document.getElementById('delete-grade-modal-<%= grade.id %>').style.display = 'flex';
+    }
+    
+    function closeDeleteGradeModal<%= grade.id %>() {
+      document.getElementById('delete-grade-modal-<%= grade.id %>').style.display = 'none';
+    }
+    
+    document.getElementById('delete-grade-modal-<%= grade.id %>').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDeleteGradeModal<%= grade.id %>();
+      }
+    });
+  <% end %>
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.style.display = 'none';
+      });
+    }
+  });
+</script>

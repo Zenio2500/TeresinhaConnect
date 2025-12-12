@@ -80,7 +80,7 @@ class PastoralsController < ApplicationController
   end
 
   def set_pastorals
-    @pastorals = Pastoral.all
+    @pastorals = Pastoral.all.order(:name)
   end
 
   def pastoral_params

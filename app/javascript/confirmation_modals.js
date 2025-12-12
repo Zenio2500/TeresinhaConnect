@@ -1,65 +1,39 @@
 // Sistema de Modais de Confirmação
-console.log('Confirmation modals script loaded');
 
-function initializeConfirmationModals() {
-  console.log('Initializing confirmation modals');
+// Interceptar submissão de formulários (incluindo button_to)
+document.addEventListener('submit', function(e) {
+  const form = e.target;
   
-  // Interceptar evento turbo:before-fetch-request para confirmações
-  document.addEventListener('turbo:before-fetch-request', function(event) {
-    const element = event.target;
-    const confirmMessage = element.dataset.confirm || element.getAttribute('data-confirm');
-    
-    if (confirmMessage && !element.dataset.confirmed) {
-      event.preventDefault();
-      
-      // Determinar tipo de ação
-      const isDelete = element.dataset.turboMethod === 'delete' || 
-                       element.getAttribute('data-turbo-method') === 'delete';
-      const type = isDelete ? 'danger' : 'warning';
-      const title = isDelete ? 'Confirmar Exclusão' : 'Confirmar Alterações';
-      
-      showConfirmationModal(
-        title,
-        confirmMessage,
-        type,
-        function() {
-          element.dataset.confirmed = 'true';
-          element.click();
-        }
-      );
-    }
-  }, { capture: true });
+  // Verificar se o formulário ou botão tem data-confirm
+  const confirmMessage = form.dataset.confirm || 
+                        form.querySelector('[data-confirm]')?.dataset.confirm ||
+                        form.querySelector('button[data-confirm]')?.dataset.confirm;
   
-  // Interceptar submissão de formulários
-  document.querySelectorAll('form').forEach(form => {
-    if (form.dataset.confirmListenerAdded) return;
-    form.dataset.confirmListenerAdded = 'true';
+  if (confirmMessage && !form.dataset.confirmed) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
     
-    form.addEventListener('submit', function(e) {
-      const submitButton = form.querySelector('input[type="submit"][data-confirm]');
-      const confirmMessage = submitButton?.dataset.confirm;
-      
-      if (confirmMessage && !form.dataset.confirmed) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
+    // Determinar tipo de ação
+    const isDelete = form.querySelector('input[name="_method"][value="delete"]') !== null;
+    const type = isDelete ? 'danger' : 'warning';
+    const title = isDelete ? 'Confirmar Exclusão' : 'Confirmar Alterações';
+    
+    showConfirmationModal(
+      title,
+      confirmMessage,
+      type,
+      function() {
+        form.dataset.confirmed = 'true';
         
-        showConfirmationModal(
-          'Confirmar Alterações',
-          confirmMessage,
-          'warning',
-          function() {
-            form.dataset.confirmed = 'true';
-            form.requestSubmit();
-          }
-        );
+        // Remover o listener temporariamente para evitar loop
+        const newForm = form.cloneNode(true);
+        newForm.dataset.confirmed = 'true';
+        form.parentNode.replaceChild(newForm, form);
+        newForm.requestSubmit();
       }
-    }, { capture: true });
-  });
-}
-
-// Inicializar
-document.addEventListener('DOMContentLoaded', initializeConfirmationModals);
-document.addEventListener('turbo:load', initializeConfirmationModals);
+    );
+  }
+}, { capture: true });
 
 function showConfirmationModal(title, message, type, onConfirm) {
   // Criar overlay

@@ -13,16 +13,24 @@
 
   <div class="form-group">
     <%= f.label :user_id, "Usuário", class: "form-label required" %>
-    <%= f.collection_select :user_id, 
-        User.order(:name), 
-        :id, :name, 
-        { prompt: "Selecione um usuário" }, 
-        { class: "form-control #{reader.errors[:user_id].any? ? 'is-invalid' : ''}", required: true } %>
-    <span class="form-text">Selecione o usuário que será designado como leitor</span>
-    <% if reader.errors[:user_id].any? %>
-      <div class="invalid-feedback">
-        <%= reader.errors[:user_id].first %>
+    <% if reader.persisted? %>
+      <div class="form-control" style="background-color: var(--gray-100); cursor: not-allowed;">
+        <%= reader.user&.name || 'N/A' %>
       </div>
+      <%= f.hidden_field :user_id %>
+      <span class="form-text">O usuário não pode ser alterado após a criação do leitor</span>
+    <% else %>
+      <%= f.collection_select :user_id, 
+          User.order(:name), 
+          :id, :name, 
+          { prompt: "Selecione um usuário" }, 
+          { class: "form-control #{reader.errors[:user_id].any? ? 'is-invalid' : ''}", required: true } %>
+      <span class="form-text">Selecione o usuário que será designado como leitor</span>
+      <% if reader.errors[:user_id].any? %>
+        <div class="invalid-feedback">
+          <%= reader.errors[:user_id].first %>
+        </div>
+      <% end %>
     <% end %>
   </div>
 
@@ -45,7 +53,7 @@
   <div class="form-group">
     <%= f.label :read_types, "Tipos de Leitura", class: "form-label" %>
     <div style="margin-top: var(--spacing-sm);">
-      <% ['1ª Leitura', '2ª Leitura', 'Salmo', 'Evangelho', 'Preces'].each do |type| %>
+      <% ['1ª Leitura', '2ª Leitura', 'Salmo', 'Preces'].each do |type| %>
         <div class="form-check">
           <%= check_box_tag 'reader[read_types][]', type, 
               reader.read_types&.include?(type), 

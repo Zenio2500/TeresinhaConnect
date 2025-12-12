@@ -6,7 +6,10 @@
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">Todas as Pastorais (<%= @pastorals.count %>)</h3>
-    <%= link_to "➕ Nova Pastoral", new_pastoral_path, class: "btn btn-primary" %>
+    <% current_user = User.find_by(id: session[:user_id]) %>
+    <% if can_manage_pastorals?(current_user) %>
+      <%= link_to "➕ Nova Pastoral", new_pastoral_path, class: "btn btn-primary" %>
+    <% end %>
   </div>
   
   <div class="card-body p-0">
@@ -36,10 +39,8 @@
                     <% if can_edit_pastoral?(current_user, pastoral) %>
                       <%= link_to "Editar", edit_pastoral_path(pastoral), class: "btn btn-sm btn-warning" %>
                     <% end %>
-                    <% if can_delete_pastoral?(current_user) %>
-                      <%= button_to "Excluir", pastoral_path(pastoral), method: :delete, 
-                          data: { confirm: "Tem certeza que deseja excluir esta pastoral?" }, 
-                          class: "btn btn-sm btn-danger" %>
+                    <% if can_delete_pastoral?(current_user) && pastoral.name.downcase != 'geral' %>
+                      <button type="button" class="btn btn-sm btn-danger" onclick="showDeleteModal<%= pastoral.id %>()">Excluir</button>
                     <% end %>
                   </div>
                 </td>
@@ -55,3 +56,56 @@
     <% end %>
   </div>
 </div>
+
+<!-- Modais de Confirmação de Exclusão -->
+<% current_user = User.find_by(id: session[:user_id]) %>
+<% @pastorals.each do |pastoral| %>
+  <% if can_delete_pastoral?(current_user) && pastoral.name.downcase != 'geral' %>
+    <div id="delete-modal-<%= pastoral.id %>" class="modal-overlay" style="display: none;">
+      <div class="confirmation-modal">
+        <div class="modal-header">
+          <span class="modal-icon danger">🗑️</span>
+          <h3 class="modal-title">Confirmar Exclusão de Pastoral</h3>
+        </div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir a pastoral <strong><%= pastoral.name %></strong>?</p>
+          <p>Esta ação não pode ser desfeita.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeDeleteModal<%= pastoral.id %>()">Cancelar</button>
+          <%= button_to "Confirmar Exclusão", pastoral_path(pastoral), 
+              method: :delete, 
+              class: "btn btn-danger" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<script>
+  <% @pastorals.each do |pastoral| %>
+    <% if can_delete_pastoral?(current_user) && pastoral.name.downcase != 'geral' %>
+      function showDeleteModal<%= pastoral.id %>() {
+        document.getElementById('delete-modal-<%= pastoral.id %>').style.display = 'flex';
+      }
+      
+      function closeDeleteModal<%= pastoral.id %>() {
+        document.getElementById('delete-modal-<%= pastoral.id %>').style.display = 'none';
+      }
+      
+      document.getElementById('delete-modal-<%= pastoral.id %>').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeDeleteModal<%= pastoral.id %>();
+        }
+      });
+    <% end %>
+  <% end %>
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.style.display = 'none';
+      });
+    }
+  });
+</script>
