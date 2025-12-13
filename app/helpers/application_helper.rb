@@ -25,4 +25,18 @@ module ApplicationHelper
     # Apenas coordenadores/vice da pastoral Geral podem excluir
     can_manage_pastorals?(user)
   end
+
+  def can_view_liturgia_statistics?(user, pastoral)
+    return false unless user && pastoral
+    return false unless pastoral.name.downcase == "liturgia"
+    
+    # Coordenadores e vices da pastoral Geral
+    general_pastoral = Pastoral.where("LOWER(name) = ?", "geral").first
+    if general_pastoral && (general_pastoral.coordinator_id == user.id || general_pastoral.vice_coordinator_id == user.id)
+      return true
+    end
+    
+    # Coordenadores e vices da própria pastoral Liturgia
+    pastoral.coordinator_id == user.id || pastoral.vice_coordinator_id == user.id
+  end
 end

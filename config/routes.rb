@@ -24,6 +24,11 @@ Rails.application.routes.draw do
   # Recursos com CRUD completo
   resources :users
   resources :pastorals
-  resources :grades
+  resources :grades do
+    member do
+      post :add_reader
+      delete :remove_reader
+    end
+  end
   resources :readers
 end

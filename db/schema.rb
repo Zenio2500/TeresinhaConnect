@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_03_122310) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_13_130837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -46,6 +46,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_03_122310) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "reader_type"
     t.index ["deleted_at"], name: "index_reader_grades_on_deleted_at"
     t.index ["grade_id"], name: "index_reader_grades_on_grade_id"
     t.index ["reader_id"], name: "index_reader_grades_on_reader_id"

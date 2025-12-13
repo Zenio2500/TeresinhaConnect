@@ -5,5 +5,7 @@ class Grade < ApplicationRecord
     has_many :readers, through: :reader_grades
 
     validates :date, presence: { message: "não pode ficar em branco." }
-    validates :liturgical_color, format: { with: /\A#[0-9a-fA-F]{6}\z/, message: 'deve estar no formato hexadecimal (#RRGGBB)' }
+    validates :liturgical_color, inclusion: { in: ['Verde', 'Branco', 'Roxo', 'Vermelho', 'Rosa'], 
+                                              message: 'deve ser uma cor litúrgica válida.' }, 
+                                 allow_blank: true
 end

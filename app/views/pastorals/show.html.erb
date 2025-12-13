@@ -4,22 +4,25 @@
 </div>
 
 <% if @pastoral.name.downcase == "liturgia" %>
-  <!-- Estatísticas da Pastoral Liturgia -->
-  <div class="grid grid-2 mb-4">
-    <%= link_to readers_path, style: "text-decoration: none; color: inherit;" do %>
-      <div class="stat-card stat-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-        <div class="stat-card-value"><%= @readers_count %></div>
-        <div class="stat-card-label">Leitores Cadastrados</div>
-      </div>
-    <% end %>
+  <% current_user = User.find_by(id: session[:user_id]) %>
+  <% if can_view_liturgia_statistics?(current_user, @pastoral) %>
+    <!-- Estatísticas da Pastoral Liturgia -->
+    <div class="grid grid-2 mb-4">
+      <%= link_to readers_path, style: "text-decoration: none; color: inherit;" do %>
+        <div class="stat-card stat-info" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <div class="stat-card-value"><%= @readers_count %></div>
+          <div class="stat-card-label">Leitores Cadastrados</div>
+        </div>
+      <% end %>
 
-    <%= link_to grades_path, style: "text-decoration: none; color: inherit;" do %>
-      <div class="stat-card stat-warning" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-        <div class="stat-card-value"><%= @grades_count %></div>
-        <div class="stat-card-label">Escalas Litúrgicas</div>
-      </div>
-    <% end %>
-  </div>
+      <%= link_to grades_path, style: "text-decoration: none; color: inherit;" do %>
+        <div class="stat-card stat-warning" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <div class="stat-card-value"><%= @grades_count %></div>
+          <div class="stat-card-label">Escalas Litúrgicas</div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if @upcoming_grades.any? %>
     <div class="card">
@@ -136,7 +139,7 @@
     
     <div class="card-body">
       <div class="grid grid-3">
-        <% @pastoral.users.each do |user| %>
+        <% @pastoral.users.order(:name).each do |user| %>
           <div class="card">
             <div class="card-body">
               <h5><%= user.name %></h5>

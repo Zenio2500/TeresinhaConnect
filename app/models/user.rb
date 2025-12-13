@@ -40,5 +40,9 @@ class User < ApplicationRecord
 
 		Pastoral.where(coordinator_id: id).update_all(coordinator_id: replacement_user_id)
 		Pastoral.where(vice_coordinator_id: id).update_all(vice_coordinator_id: replacement_user_id)
+		UserPastoral.where(user_id: id).destroy_all
+		readers = Reader.where(user_id: id)
+		ReaderGrade.where(reader_id: readers.pluck(:id)).destroy_all
+		readers.destroy_all
 	end
 end

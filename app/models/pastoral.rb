@@ -9,13 +9,16 @@ class Pastoral < ApplicationRecord
 
     validates :name,
         presence: { message: "não pode ficar em branco." },
-        uniqueness: { message: "já está cadastrada." }
+        uniqueness: {
+            conditions: -> { where(deleted_at: nil) },
+            message: "já está cadastrada."
+        }
     validates :coordinator_id, presence: { message: "não pode ficar em branco." }
     validates :vice_coordinator_id, presence: { message: "não pode ficar em branco." }
 
     before_validation :check_coordinators
     after_save :update_coordinator_status
-    after_destroy :update_coordinator_status_on_destroy
+    before_destroy :update_coordinator_status_on_destroy
 
     def check_coordinators
         if coordinator_id == vice_coordinator_id
@@ -29,21 +32,27 @@ class Pastoral < ApplicationRecord
     def update_coordinator_status
         coordinator&.update_column(:is_coordinator, true)
         vice_coordinator&.update_column(:is_coordinator, true)
+        UserPastoral.create(user: coordinator, pastoral: self) unless UserPastoral.exists?(user: coordinator, pastoral: self)
+        UserPastoral.create(user: vice_coordinator, pastoral: self) unless UserPastoral.exists?(user: vice_coordinator, pastoral: self)
 
         if saved_change_to_coordinator_id?
             old_coordinator_id = coordinator_id_before_last_save
+            UserPastoral.find_by(user: old_coordinator_id, pastoral: self)&.destroy
             check_and_update_coordinator_status(old_coordinator_id) if old_coordinator_id
         end
 
         if saved_change_to_vice_coordinator_id?
             old_vice_id = vice_coordinator_id_before_last_save
+            UserPastoral.find_by(user: old_vice_id, pastoral: self)&.destroy
             check_and_update_coordinator_status(old_vice_id) if old_vice_id
         end
     end
 
     def update_coordinator_status_on_destroy
         check_and_update_coordinator_status(coordinator_id)
+        UserPastoral.find_by(user: coordinator_id, pastoral: self)&.destroy
         check_and_update_coordinator_status(vice_coordinator_id)
+        UserPastoral.find_by(user: vice_coordinator_id, pastoral: self)&.destroy
     end
 
     def check_and_update_coordinator_status(user_id)

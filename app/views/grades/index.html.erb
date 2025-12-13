@@ -3,78 +3,130 @@
   <p style="color: var(--gray-600);">Gerencie as escalas de leitores para as celebrações</p>
 </div>
 
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Todas as Escalas (<%= @grades.count %>)</h3>
-    <div class="btn-group">
-      <%= link_to "➕ Nova Escala", new_grade_path, class: "btn btn-primary" %>
-      <% liturgia_pastoral = Pastoral.find_by("LOWER(name) = ?", "liturgia") %>
-      <% if liturgia_pastoral %>
-        <%= link_to "Voltar", pastoral_path(liturgia_pastoral), class: "btn btn-secondary" %>
-      <% end %>
+<div style="display: flex; gap: var(--spacing-lg); flex-direction: row-reverse;">
+  <!-- Lista lateral de leitores disponíveis -->
+  <div class="readers-sidebar" style="width: 250px; flex-shrink: 0;">
+    <div class="card" style="position: sticky; top: 20px;">
+      <div class="card-header">
+        <h3 class="card-title" style="font-size: 1rem;">Leitores Disponíveis</h3>
+      </div>
+      <div class="card-body" style="padding: var(--spacing-sm);">
+        <div id="available-readers" style="max-height: 600px; overflow-y: auto;">
+          <% @readers.includes(:user).order('users.name').each do |reader| %>
+            <% first_name = reader.user.name.split.first %>
+            <div class="reader-item" 
+                 draggable="true" 
+                 data-reader-id="<%= reader.id %>"
+                 data-reader-name="<%= first_name %>"
+                 style="padding: var(--spacing-sm); margin-bottom: var(--spacing-xs); background: var(--gray-100); border-radius: 4px; cursor: move; font-size: 0.9rem;">
+              📖 <%= first_name %>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <div class="card-body p-0">
-    <% if @grades.any? %>
-      <div class="table-container">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Cor Litúrgica</th>
-              <th>Tempo Litúrgico</th>
-              <th>Solenidade</th>
-              <th>Descrição</th>
-              <th class="text-center">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @grades.order(date: :desc).each do |grade| %>
-              <tr>
-                <td><strong><%= grade.date.strftime("%d/%m/%Y") %></strong></td>
-                <td>
-                  <% if grade.liturgical_color.present? %>
-                    <span class="liturgical-color liturgical-<%= grade.liturgical_color.downcase %>">
-                      <span class="liturgical-color-indicator"></span>
-                      <%= grade.liturgical_color.capitalize %>
-                    </span>
-                  <% else %>
-                    <span class="badge badge-secondary">N/A</span>
-                  <% end %>
-                </td>
-                <td><%= grade.liturgical_time || 'N/A' %></td>
-                <td>
-                  <% if grade.is_solemnity %>
-                    <span class="badge badge-warning">Sim</span>
-                  <% else %>
-                    <span class="badge badge-secondary">Não</span>
-                  <% end %>
-                </td>
-                <td>
-                  <% if grade.description.present? %>
-                    <%= truncate(grade.description, length: 50) %>
-                  <% else %>
-                    -
-                  <% end %>
-                </td>
-                <td class="text-center">
-                  <div class="btn-group">
-                    <%= link_to "Ver", grade_path(grade), class: "btn btn-sm btn-secondary" %>
-                    <%= link_to "Editar", edit_grade_path(grade), class: "btn btn-sm btn-warning" %>
-                    <button type="button" class="btn btn-sm btn-danger" onclick="showDeleteGradeModal<%= grade.id %>()">Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+
+  <!-- Tabela de escalas com drag-and-drop -->
+  <div style="flex: 1; min-width: 0;">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Todas as Escalas (<%= @grades.count %>)</h3>
+        <div class="btn-group">
+          <%= link_to "➕ Nova Escala", new_grade_path, class: "btn btn-primary" %>
+          <% liturgia_pastoral = Pastoral.find_by("LOWER(name) = ?", "liturgia") %>
+          <% if liturgia_pastoral %>
+            <%= link_to "Voltar", pastoral_path(liturgia_pastoral), class: "btn btn-secondary" %>
+          <% end %>
+        </div>
       </div>
-    <% else %>
-      <p style="color: var(--gray-600); text-align: center; padding: var(--spacing-xl);">
-        Nenhuma escala cadastrada ainda.
-      </p>
-    <% end %>
+      
+      <div class="card-body p-0">
+        <% if @grades.any? %>
+          <div class="table-container">
+            <table class="table" id="grades-table">
+              <thead>
+                <tr>
+                  <th style="width: 120px;">Data</th>
+                  <th style="width: 140px;">1ª Leitura</th>
+                  <th style="width: 140px;">Salmo</th>
+                  <th style="width: 140px;">2ª Leitura</th>
+                  <th style="width: 140px;">Preces</th>
+                  <th class="text-center" style="width: 280px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @grades.order(date: :asc).each do |grade| %>
+                  <tr data-grade-id="<%= grade.id %>">
+                    <td><strong><%= grade.date.strftime("%d/%m/%Y") %></strong></td>
+                    
+                    <!-- 1ª Leitura -->
+                    <td class="drop-zone" data-reader-type="1ª Leitura" data-grade-id="<%= grade.id %>">
+                      <% first_reading = grade.reader_grades.find_by(reader_type: '1ª Leitura') %>
+                      <% if first_reading %>
+                        <% first_name = first_reading.reader.user.name.split.first %>
+                        <div class="assigned-reader" data-reader-grade-id="<%= first_reading.id %>" draggable="true">
+                          <%= first_name %>
+                          <span class="remove-reader" onclick="removeReader(<%= first_reading.id %>)">×</span>
+                        </div>
+                      <% end %>
+                    </td>
+                    
+                    <!-- Salmo -->
+                    <td class="drop-zone" data-reader-type="Salmo" data-grade-id="<%= grade.id %>">
+                      <% salmo = grade.reader_grades.find_by(reader_type: 'Salmo') %>
+                      <% if salmo %>
+                        <% first_name = salmo.reader.user.name.split.first %>
+                        <div class="assigned-reader" data-reader-grade-id="<%= salmo.id %>" draggable="true">
+                          <%= first_name %>
+                          <span class="remove-reader" onclick="removeReader(<%= salmo.id %>)">×</span>
+                        </div>
+                      <% end %>
+                    </td>
+                    
+                    <!-- 2ª Leitura -->
+                    <td class="drop-zone" data-reader-type="2ª Leitura" data-grade-id="<%= grade.id %>">
+                      <% second_reading = grade.reader_grades.find_by(reader_type: '2ª Leitura') %>
+                      <% if second_reading %>
+                        <% first_name = second_reading.reader.user.name.split.first %>
+                        <div class="assigned-reader" data-reader-grade-id="<%= second_reading.id %>" draggable="true">
+                          <%= first_name %>
+                          <span class="remove-reader" onclick="removeReader(<%= second_reading.id %>)">×</span>
+                        </div>
+                      <% end %>
+                    </td>
+                    
+                    <!-- Preces -->
+                    <td class="drop-zone" data-reader-type="Preces" data-grade-id="<%= grade.id %>">
+                      <% preces = grade.reader_grades.find_by(reader_type: 'Preces') %>
+                      <% if preces %>
+                        <% first_name = preces.reader.user.name.split.first %>
+                        <div class="assigned-reader" data-reader-grade-id="<%= preces.id %>" draggable="true">
+                          <%= first_name %>
+                          <span class="remove-reader" onclick="removeReader(<%= preces.id %>)">×</span>
+                        </div>
+                      <% end %>
+                    </td>
+                    
+                    <td class="text-center">
+                      <div style="display: flex; gap: 4px; justify-content: center;">
+                        <%= link_to "Ver", grade_path(grade), class: "btn btn-sm btn-secondary" %>
+                        <%= link_to "Editar", edit_grade_path(grade), class: "btn btn-sm btn-warning" %>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="showDeleteGradeModal<%= grade.id %>()">Excluir</button>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <p style="color: var(--gray-600); text-align: center; padding: var(--spacing-xl);">
+            Nenhuma escala cadastrada ainda.
+          </p>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -124,4 +176,260 @@
       });
     }
   });
+</script>
+
+<!-- Estilos CSS para Drag and Drop -->
+<style>
+  .drop-zone {
+    min-height: 40px;
+    padding: var(--spacing-xs);
+    border: 2px dashed transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+  
+  .drop-zone.drag-over {
+    border-color: var(--primary-color);
+    background-color: rgba(var(--primary-rgb), 0.1);
+  }
+  
+  .assigned-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 8px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: move;
+  }
+  
+  .assigned-reader.dragging {
+    opacity: 0.5;
+  }
+  
+  .remove-reader {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  
+  .remove-reader:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .reader-item {
+    transition: all 0.2s;
+  }
+  
+  .reader-item:hover {
+    background: var(--gray-200) !important;
+    transform: translateX(4px);
+  }
+  
+  .reader-item.dragging {
+    opacity: 0.5;
+  }
+</style>
+
+<!-- JavaScript para Drag and Drop -->
+<script>
+  let draggedElement = null;
+  let draggedReaderId = null;
+  let draggedReaderName = null;
+  let draggedReaderGradeId = null;
+
+  function initializeDragAndDrop() {
+    // Configurar drag para leitores disponíveis
+    document.querySelectorAll('.reader-item').forEach(item => {
+      item.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        draggedReaderId = this.dataset.readerId;
+        draggedReaderName = this.dataset.readerName;
+        draggedReaderGradeId = null;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+      
+      item.addEventListener('dragend', function(e) {
+        this.classList.remove('dragging');
+      });
+    });
+
+    // Configurar drag para leitores já designados
+    document.querySelectorAll('.assigned-reader').forEach(item => {
+      item.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        draggedReaderId = null;
+        draggedReaderName = this.textContent.trim().replace('×', '').trim();
+        draggedReaderGradeId = this.dataset.readerGradeId;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      
+      item.addEventListener('dragend', function(e) {
+        this.classList.remove('dragging');
+      });
+    });
+
+    // Configurar drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+      zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+      });
+      
+      zone.addEventListener('dragleave', function(e) {
+        this.classList.remove('drag-over');
+      });
+      
+      zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        
+        const gradeId = this.dataset.gradeId;
+        const readerType = this.dataset.readerType;
+        
+        // Verificar se já existe um leitor designado
+        if (this.querySelector('.assigned-reader')) {
+          alert('Já existe um leitor designado para este tipo de leitura. Remova-o primeiro.');
+          return;
+        }
+        
+        // Se estiver arrastando de um leitor disponível
+        if (draggedReaderId) {
+          addReaderToGrade(gradeId, draggedReaderId, readerType, draggedReaderName, this);
+        }
+        // Se estiver movendo de outra posição
+        else if (draggedReaderGradeId) {
+          // Remover da posição anterior e adicionar na nova
+          moveReaderToNewPosition(draggedReaderGradeId, gradeId, readerType, draggedReaderName, this);
+        }
+      });
+    });
+  }
+
+  function addReaderToGrade(gradeId, readerId, readerType, readerName, dropZone) {
+    fetch(`/grades/${gradeId}/add_reader`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        reader_id: readerId,
+        reader_type: readerType
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Adicionar o leitor visualmente
+        const readerDiv = document.createElement('div');
+        readerDiv.className = 'assigned-reader';
+        readerDiv.setAttribute('data-reader-grade-id', data.reader_grade.id);
+        readerDiv.setAttribute('draggable', 'true');
+        readerDiv.innerHTML = `${readerName} <span class="remove-reader" onclick="removeReader(${data.reader_grade.id})">×</span>`;
+        
+        // Configurar drag para o novo elemento
+        readerDiv.addEventListener('dragstart', function(e) {
+          draggedElement = this;
+          draggedReaderId = null;
+          draggedReaderName = readerName;
+          draggedReaderGradeId = data.reader_grade.id;
+          this.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        
+        readerDiv.addEventListener('dragend', function(e) {
+          this.classList.remove('dragging');
+        });
+        
+        dropZone.appendChild(readerDiv);
+      } else {
+        alert('Erro: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      alert('Erro ao adicionar leitor');
+    });
+  }
+
+  function moveReaderToNewPosition(readerGradeId, newGradeId, newReaderType, readerName, dropZone) {
+    const oldGradeId = draggedElement.closest('tr').dataset.gradeId;
+    
+    // Primeiro remover da posição antiga
+    fetch(`/grades/${oldGradeId}/remove_reader`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        reader_grade_id: readerGradeId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Remover visualmente da posição antiga
+        draggedElement.remove();
+        
+        // Adicionar na nova posição usando o reader_id retornado
+        addReaderToGrade(newGradeId, data.reader_id, newReaderType, readerName, dropZone);
+      } else {
+        alert('Erro ao mover leitor: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      alert('Erro ao mover leitor');
+    });
+  }
+
+  function removeReader(readerGradeId) {
+    if (!confirm('Deseja remover este leitor da escala?')) {
+      return;
+    }
+    
+    const readerElement = document.querySelector(`[data-reader-grade-id="${readerGradeId}"]`);
+    const gradeId = readerElement.closest('tr').dataset.gradeId;
+    
+    fetch(`/grades/${gradeId}/remove_reader`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        reader_grade_id: readerGradeId
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        readerElement.remove();
+      } else {
+        alert('Erro ao remover leitor');
+      }
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      alert('Erro ao remover leitor');
+    });
+  }
+
+  // Inicializar drag and drop quando a página carregar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDragAndDrop);
+  } else {
+    initializeDragAndDrop();
+  }
+
+  // Reinicializar quando Turbo carregar a página
+  document.addEventListener('turbo:load', initializeDragAndDrop);
 </script>

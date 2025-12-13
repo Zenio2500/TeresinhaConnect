@@ -53,3 +53,52 @@
     </ul>
   </div>
 </div>
+
+<!-- Histórico de Participações em Escalas -->
+<div class="card mt-4">
+  <div class="card-header">
+    <h3 class="card-title">Histórico de Participações</h3>
+    <span class="badge badge-info"><%= @participations.count %> participações</span>
+  </div>
+  
+  <div class="card-body">
+    <% if @participations.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 150px;">Data</th>
+              <th style="width: 200px;">Função</th>
+              <th>Descrição da Celebração</th>
+              <th class="text-center" style="width: 100px;">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @participations.each do |participation| %>
+              <tr>
+                <td><strong><%= participation.grade.date.strftime("%d/%m/%Y") %></strong></td>
+                <td>
+                  <span class="badge badge-primary"><%= participation.reader_type %></span>
+                </td>
+                <td>
+                  <% if participation.grade.description.present? %>
+                    <%= participation.grade.description %>
+                  <% else %>
+                    <span style="color: var(--gray-500);">Sem descrição</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <%= link_to "Ver Escala", grade_path(participation.grade), class: "btn btn-sm btn-secondary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p style="color: var(--gray-600); text-align: center; padding: var(--spacing-xl);">
+        Este leitor ainda não participou de nenhuma escala.
+      </p>
+    <% end %>
+  </div>
+</div>

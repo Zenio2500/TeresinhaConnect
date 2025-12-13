@@ -13,6 +13,9 @@ class ReadersController < ApplicationController
     end
 
     def show
+      @participations = @reader.reader_grades
+                               .includes(grade: [])
+                               .order('grades.date DESC')
       respond_to do |format|
         format.html
         format.json { respond_with(@reader) }
@@ -73,7 +76,7 @@ class ReadersController < ApplicationController
     end
 
     def set_readers
-        @readers = Reader.all
+        @readers = Reader.all.joins(:user).order(:name)
     end
 
     def reader_params

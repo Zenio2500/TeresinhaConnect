@@ -13,18 +13,113 @@
 
   <div class="form-group">
     <%= f.label :date, "Data da Celebração", class: "form-label required" %>
-    <%= f.date_field :date, class: "form-control #{grade.errors[:date].any? ? 'is-invalid' : ''}", 
-        required: true %>
+    <%= f.hidden_field :date, id: "grade_date_hidden" %>
+    <%= text_field_tag :date_display, 
+        grade.date ? grade.date.strftime("%d/%m/%Y") : "", 
+        class: "form-control #{grade.errors[:date].any? ? 'is-invalid' : ''}", 
+        placeholder: "DD/MM/AAAA",
+        required: true,
+        id: "grade_date_display" %>
     <% if grade.errors[:date].any? %>
       <div class="invalid-feedback">
         <%= grade.errors[:date].first %>
       </div>
     <% end %>
+    <span class="form-text">Digite a data no formato DD/MM/AAAA ou clique no ícone do calendário</span>
   </div>
+
+  <script>
+    function initializeDatePicker() {
+      const displayInput = document.getElementById('grade_date_display');
+      const hiddenInput = document.getElementById('grade_date_hidden');
+      
+      if (!displayInput || !hiddenInput) return;
+
+      // Criar input date invisível para o calendário
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.style.position = 'absolute';
+      dateInput.style.opacity = '0';
+      dateInput.style.pointerEvents = 'none';
+      dateInput.style.width = '0';
+      dateInput.style.height = '0';
+      displayInput.parentNode.insertBefore(dateInput, displayInput.nextSibling);
+
+      // Adicionar ícone de calendário ao campo
+      displayInput.style.paddingRight = '35px';
+      const calendarIcon = document.createElement('span');
+      calendarIcon.innerHTML = '📅';
+      calendarIcon.style.position = 'absolute';
+      calendarIcon.style.right = '10px';
+      calendarIcon.style.top = '50%';
+      calendarIcon.style.transform = 'translateY(-50%)';
+      calendarIcon.style.cursor = 'pointer';
+      calendarIcon.style.fontSize = '1.2em';
+      displayInput.parentNode.style.position = 'relative';
+      displayInput.parentNode.appendChild(calendarIcon);
+
+      // Ao clicar no ícone, abrir o calendário
+      calendarIcon.addEventListener('click', function() {
+        dateInput.showPicker();
+      });
+
+      // Quando selecionar data no calendário
+      dateInput.addEventListener('change', function() {
+        if (this.value) {
+          const [year, month, day] = this.value.split('-');
+          const formattedDate = `${day}/${month}/${year}`;
+          displayInput.value = formattedDate;
+          hiddenInput.value = this.value;
+        }
+      });
+
+      // Máscara para digitação manual
+      displayInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+          value = value.substring(0, 2) + '/' + value.substring(2);
+        }
+        if (value.length >= 5) {
+          value = value.substring(0, 5) + '/' + value.substring(5, 9);
+        }
+        e.target.value = value;
+
+        // Converter para formato YYYY-MM-DD se completo
+        if (value.length === 10) {
+          const [day, month, year] = value.split('/');
+          if (day && month && year && year.length === 4) {
+            hiddenInput.value = `${year}-${month}-${day}`;
+            dateInput.value = `${year}-${month}-${day}`;
+          }
+        }
+      });
+
+      // Inicializar valor se já existe
+      if (hiddenInput.value) {
+        dateInput.value = hiddenInput.value;
+      } else if (displayInput.value && displayInput.value.length === 10) {
+        const [day, month, year] = displayInput.value.split('/');
+        if (day && month && year) {
+          hiddenInput.value = `${year}-${month}-${day}`;
+          dateInput.value = `${year}-${month}-${day}`;
+        }
+      }
+    }
+
+    // Executar quando a página carregar
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeDatePicker);
+    } else {
+      initializeDatePicker();
+    }
+
+    // Executar quando Turbo carregar a página
+    document.addEventListener('turbo:load', initializeDatePicker);
+  </script>
 
   <div class="form-group">
     <%= f.label :liturgical_color, "Cor Litúrgica", class: "form-label" %>
-    <div style="margin-top: var(--spacing-sm); display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+    <div style="margin-top: var(--spacing-sm); display: flex; gap: var(--spacing-md); flex-wrap: wrap;" id="liturgical-color-options">
       <% [
         ['Verde', 'green'], 
         ['Branco', 'white'], 
@@ -32,13 +127,14 @@
         ['Vermelho', 'red'], 
         ['Rosa', 'pink']
       ].each do |name, color| %>
-        <label style="cursor: pointer;">
+        <label style="cursor: pointer;" class="liturgical-color-label">
           <%= f.radio_button :liturgical_color, name, 
               id: "grade_liturgical_color_#{color}",
+              class: "liturgical-color-radio",
               style: "display: none;" %>
-          <span class="liturgical-color liturgical-<%= color %>" 
-                style="cursor: pointer; padding: var(--spacing-md); <%= grade.liturgical_color == name ? 'border: 3px solid var(--primary);' : '' %>"
-                onclick="document.getElementById('grade_liturgical_color_<%= color %>').checked = true;">
+          <span class="liturgical-color liturgical-<%= color %> liturgical-color-option" 
+                data-color="<%= color %>"
+                style="cursor: pointer; padding: var(--spacing-md); <%= grade.liturgical_color == name ? 'border: 3px solid var(--primary);' : '' %>">
             <span class="liturgical-color-indicator"></span>
             <%= name %>
           </span>
@@ -47,6 +143,40 @@
     </div>
     <span class="form-text">Selecione a cor litúrgica conforme o calendário católico</span>
   </div>
+
+  <script>
+    function initializeLiturgicalColorSelection() {
+      // Adicionar event listeners para as opções de cor litúrgica
+      document.querySelectorAll('.liturgical-color-option').forEach(function(option) {
+        option.addEventListener('click', function() {
+          const color = this.dataset.color;
+          const radioButton = document.getElementById('grade_liturgical_color_' + color);
+          
+          if (radioButton) {
+            radioButton.checked = true;
+            
+            // Remover borda de todas as opções
+            document.querySelectorAll('.liturgical-color-option').forEach(function(opt) {
+              opt.style.border = '';
+            });
+            
+            // Adicionar borda na opção selecionada
+            this.style.border = '3px solid var(--primary)';
+          }
+        });
+      });
+    }
+
+    // Executar quando a página carregar (primeira vez)
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeLiturgicalColorSelection);
+    } else {
+      initializeLiturgicalColorSelection();
+    }
+
+    // Executar quando Turbo carregar a página (navegação subsequente)
+    document.addEventListener('turbo:load', initializeLiturgicalColorSelection);
+  </script>
 
   <div class="form-group">
     <%= f.label :liturgical_time, "Tempo Litúrgico", class: "form-label" %>
