@@ -49,10 +49,14 @@ class Pastoral < ApplicationRecord
     end
 
     def update_coordinator_status_on_destroy
+        UserPastoral.where(pastoral_id: id).destroy_all
+        if name.downcase == "liturgia"
+            ReaderGrade.destroy_all
+            Reader.destroy_all
+            Grade.destroy_all
+        end
         check_and_update_coordinator_status(coordinator_id)
-        UserPastoral.find_by(user: coordinator_id, pastoral: self)&.destroy
         check_and_update_coordinator_status(vice_coordinator_id)
-        UserPastoral.find_by(user: vice_coordinator_id, pastoral: self)&.destroy
     end
 
     def check_and_update_coordinator_status(user_id)

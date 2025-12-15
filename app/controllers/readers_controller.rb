@@ -14,7 +14,9 @@ class ReadersController < ApplicationController
 
     def show
       @participations = @reader.reader_grades
-                               .includes(grade: [])
+                               .joins(:grade)
+                               .where(grades: { deleted_at: nil })
+                               .includes(:grade)
                                .order('grades.date DESC')
       respond_to do |format|
         format.html
