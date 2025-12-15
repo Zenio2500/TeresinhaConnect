@@ -68,26 +68,34 @@
   </div>
 </div>
 
-<% if @grade.readers.any? %>
+<% if @grade.reader_grades.any? %>
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Leitores Designados</h3>
     </div>
     
     <div class="card-body">
-      <div class="grid grid-3">
-        <% @grade.readers.each do |reader| %>
-          <div class="card">
-            <div class="card-body">
-              <h5><%= reader.user&.name || 'N/A' %></h5>
-              <p style="color: var(--gray-600); font-size: 0.9rem;">
-                <%= reader.user&.email || '' %>
-              </p>
-              <%= link_to "Ver Leitor", reader_path(reader), class: "btn btn-sm btn-secondary mt-2" %>
-            </div>
-          </div>
+      <ul class="detail-list">
+        <% 
+          # Definir ordem das funções
+          reading_order = ['1ª Leitura', 'Salmo', '2ª Leitura', 'Preces']
+          
+          # Ordenar reader_grades pela ordem definida
+          sorted_reader_grades = @grade.reader_grades.sort_by do |rg|
+            reading_order.index(rg.reader_type) || 999
+          end
+          
+          sorted_reader_grades.each do |reader_grade|
+        %>
+          <li class="detail-list-item">
+            <span class="detail-list-label"><%= reader_grade.reader_type %>:</span>
+            <span class="detail-list-value">
+              <strong><%= reader_grade.reader.user&.name || 'N/A' %></strong>
+              <%= link_to "Ver Leitor", reader_path(reader_grade.reader), class: "btn btn-sm btn-secondary", style: "margin-left: 10px;" %>
+            </span>
+          </li>
         <% end %>
-      </div>
+      </ul>
     </div>
   </div>
 <% else %>

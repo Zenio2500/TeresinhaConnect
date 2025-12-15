@@ -1,7 +1,7 @@
 class Grade < ApplicationRecord
     acts_as_paranoid
 
-    has_many :reader_grades
+    has_many :reader_grades, dependent: :destroy
     has_many :readers, through: :reader_grades
 
     validates :date, presence: { message: "não pode ficar em branco." }
