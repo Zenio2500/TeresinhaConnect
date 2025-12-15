@@ -77,10 +77,8 @@
     <div class="card-body">
       <ul class="detail-list">
         <% 
-          # Definir ordem das funções
           reading_order = ['1ª Leitura', 'Salmo', '2ª Leitura', 'Preces']
           
-          # Ordenar reader_grades pela ordem definida
           sorted_reader_grades = @grade.reader_grades.sort_by do |rg|
             reading_order.index(rg.reader_type) || 999
           end

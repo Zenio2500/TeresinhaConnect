@@ -1,5 +1,4 @@
 <%= form_with(model: grade, local: true) do |f| %>
-  <%# Exibir erros de validação %>
   <% if grade.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(grade.errors.count, "erro") %> <%= grade.errors.count == 1 ? "impediu" : "impediram" %> que esta escala fosse salva:</h4>

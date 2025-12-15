@@ -1,5 +1,4 @@
 <%= form_with(model: pastoral, local: true) do |f| %>
-  <%# Exibir erros de validação %>
   <% if pastoral.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(pastoral.errors.count, "erro") %> <%= pastoral.errors.count == 1 ? "impediu" : "impediram" %> que esta pastoral fosse salva:</h4>

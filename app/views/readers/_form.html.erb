@@ -1,5 +1,4 @@
 <%= form_with(model: reader, local: true) do |f| %>
-  <%# Exibir erros de validação %>
   <% if reader.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(reader.errors.count, "erro") %> <%= reader.errors.count == 1 ? "impediu" : "impediram" %> que este leitor fosse salvo:</h4>

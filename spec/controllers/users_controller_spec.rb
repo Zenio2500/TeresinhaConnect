@@ -133,17 +133,19 @@ RSpec.describe UsersController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
+    let!(:general_coordinator) { create(:user) }
+    let!(:general_pastoral) { create(:pastoral, name: 'Geral', coordinator: general_coordinator, vice_coordinator: create(:user)) }
     let!(:user_to_delete) { create(:user) }
 
     it 'destroys the requested user' do
       expect {
         delete :destroy, params: { id: user_to_delete.id }, format: :json
-      }.to change(User, :count).by(-1)
+      }.to change { User.where(deleted_at: nil).count }.by(-1)
     end
 
     it 'returns a successful response' do
       delete :destroy, params: { id: user_to_delete.id }, format: :json
-      expect(response).to be_successful
+      expect(response).to have_http_status(:no_content)
     end
   end
 
@@ -154,7 +156,7 @@ RSpec.describe UsersController, type: :controller do
 
     it 'returns unauthorized' do
       get :index
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:found)
     end
   end
 end

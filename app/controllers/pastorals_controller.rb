@@ -13,7 +13,6 @@ class PastoralsController < ApplicationController
   end
 
   def show
-    # Adicionar estatísticas se for a pastoral Liturgia (case-insensitive)
     if @pastoral.name.downcase == "liturgia"
       @readers_count = Reader.count
       @grades_count = Grade.count

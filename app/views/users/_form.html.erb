@@ -1,5 +1,4 @@
 <%= form_with(model: user, local: true) do |f| %>
-  <%# Exibir erros de validação %>
   <% if user.errors.any? %>
     <div class="alert alert-danger">
       <h4><%= pluralize(user.errors.count, "erro") %> <%= user.errors.count == 1 ? "impediu" : "impediram" %> que este usuário fosse salvo:</h4>

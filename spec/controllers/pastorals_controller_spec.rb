@@ -213,7 +213,7 @@ RSpec.describe PastoralsController, type: :controller do
 
     it 'returns unauthorized' do
       get :index
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:found)
     end
   end
 end

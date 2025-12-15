@@ -22,7 +22,6 @@ class Reader < ApplicationRecord
         liturgia_pastoral = Pastoral.find_by("LOWER(name) = ?", "liturgia")
         
         if liturgia_pastoral && user
-            # Verificar se já não está associado
             unless user.pastorals.include?(liturgia_pastoral)
                 UserPastoral.create(user: user, pastoral: liturgia_pastoral)
             end
@@ -33,7 +32,6 @@ class Reader < ApplicationRecord
         liturgia_pastoral = Pastoral.find_by("LOWER(name) = ?", "liturgia")
         
         if liturgia_pastoral && user
-            # Remover a associação do usuário com a pastoral Liturgia
             unless liturgia_pastoral.coordinator_id == user.id || liturgia_pastoral.vice_coordinator_id == user.id
                 user_pastoral = UserPastoral.find_by(user: user, pastoral: liturgia_pastoral)
                 user_pastoral&.destroy

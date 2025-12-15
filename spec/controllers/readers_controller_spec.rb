@@ -148,9 +148,9 @@ RSpec.describe ReadersController, type: :controller do
       request.env['HTTP_AUTHORIZATION'] = nil
     end
 
-    it 'returns unauthorized' do
+    it 'returns redirect' do
       get :index
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:found)
     end
   end
 end

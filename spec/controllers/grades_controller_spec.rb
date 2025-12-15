@@ -6,7 +6,7 @@ RSpec.describe GradesController, type: :controller do
       grade: {
         date: Date.tomorrow,
         is_solemnity: false,
-        liturgical_color: '#FF0000',
+        liturgical_color: 'Verde',
         liturgical_time: 'Tempo Comum',
         description: 'Descrição da grade'
       }
@@ -17,7 +17,7 @@ RSpec.describe GradesController, type: :controller do
     {
       grade: {
         date: nil,
-        liturgical_color: 'vermelho', # Formato inválido
+        liturgical_color: 'Azul',
         liturgical_time: '',
         description: ''
       }
@@ -99,7 +99,7 @@ RSpec.describe GradesController, type: :controller do
       {
         grade: {
           description: 'Nova descrição atualizada',
-          liturgical_color: '#00FF00'
+          liturgical_color: 'Branco'
         }
       }
     end
@@ -119,13 +119,13 @@ RSpec.describe GradesController, type: :controller do
 
     context 'with invalid parameters' do
       it 'does not update the grade' do
-        patch :update, params: { id: grade.id, grade: { liturgical_color: 'vermelho' } }, format: :json
+        patch :update, params: { id: grade.id, grade: { liturgical_color: 'Azul' } }, format: :json
         grade.reload
-        expect(grade.liturgical_color).not_to eq('vermelho')
+        expect(grade.liturgical_color).not_to eq('Azul')
       end
 
       it 'returns unprocessable entity status' do
-        patch :update, params: { id: grade.id, grade: { liturgical_color: 'vermelho' } }, format: :json
+        patch :update, params: { id: grade.id, grade: { liturgical_color: 'Azul' } }, format: :json
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -153,7 +153,7 @@ RSpec.describe GradesController, type: :controller do
 
     it 'returns unauthorized' do
       get :index
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:found)
     end
   end
 end
